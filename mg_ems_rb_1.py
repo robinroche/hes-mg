@@ -24,12 +24,7 @@ battery_soc = [initial_soc]
 for t in range(horizon):
     # Calculate power imbalance (generation - demand)
     power_imbalance = pv_generation[t] - load_demand[t]
-    if power_imbalance > 0:
-        # Excess generation: charge battery
-        battery_output = power_imbalance
-    else:
-        # Insufficient generation: discharge battery
-        battery_output = power_imbalance
+    battery_output = power_imbalance
     battery_results.append(battery_output)
     
     # Update battery state-of-charge
