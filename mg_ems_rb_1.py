@@ -24,11 +24,13 @@ battery_soc = [initial_soc]
 for t in range(horizon):
     # Calculate power imbalance (generation - demand)
     power_imbalance = pv_generation[t] - load_demand[t]
-    battery_output = power_imbalance
+    
+    # Determine battery output based on power imbalance
+    battery_output = -power_imbalance
     battery_results.append(battery_output)
     
     # Update battery state-of-charge
-    new_soc = battery_soc[-1] + battery_output / max_capacity
+    new_soc = battery_soc[-1] - battery_output / max_capacity
     battery_soc.append(new_soc)
     
 # Plotting
