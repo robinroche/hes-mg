@@ -33,6 +33,7 @@ model.battery_discharge = pyo.Var(range(horizon), domain=pyo.NonNegativeReals, b
 model.is_charging = pyo.Var(range(horizon), domain=pyo.Binary)
 model.curtailed_pv = pyo.Var(range(horizon), domain=pyo.NonNegativeReals)
 model.load_shedding = pyo.Var(range(horizon), domain=pyo.NonNegativeReals)
+model.battery_soc = pyo.Var(range(horizon+1), domain=pyo.Reals, bounds=(min_soc, max_soc))
 
 # Battery charge/discharge constraints using a binary variable
 def battery_charge_constraint(model, t):
@@ -42,9 +43,6 @@ model.battery_charge_constraint = pyo.Constraint(range(horizon), rule=battery_ch
 def battery_discharge_constraint(model, t):
     return model.battery_discharge[t] <= max_discharge_rate * (1 - model.is_charging[t])
 model.battery_discharge_constraint = pyo.Constraint(range(horizon), rule=battery_discharge_constraint)
-
-# Battery state-of-charge variables and constraints
-model.battery_soc = pyo.Var(range(horizon+1), domain=pyo.Reals, bounds=(min_soc, max_soc))
 
 # Initial SOC constraint
 def initial_soc_constraint_rule(model):
@@ -60,7 +58,6 @@ model.battery_soc_constraint = pyo.Constraint(range(horizon), rule=battery_soc_c
 
 # Power balance constraint
 def power_balance_constraint_rule(model, t):
-    # PV generation balance: considers battery charge/discharge and curtailment
     return (pv_generation[t] - model.curtailed_pv[t] + model.battery_discharge[t] - model.battery_charge[t] - load_demand[t] + model.load_shedding[t] == 0)
 model.power_balance_constraint = pyo.Constraint(range(horizon), rule=power_balance_constraint_rule)
 
